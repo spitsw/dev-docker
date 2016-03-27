@@ -38,4 +38,10 @@ RUN mkdir -p ~/.vim/autoload ~/.vim/bundle && \
   git clone https://github.com/scrooloose/syntastic.git && \
   git clone https://github.com/scrooloose/nerdtree.git
 
+COPY home/ /home/warren/
+RUN chown -R warren:warren /home/warren
+RUN passwd -d warren
+
+RUN apt-get install -y iputils-ping
+
 CMD    ["/usr/sbin/sshd", "-D"]
