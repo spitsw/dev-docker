@@ -1,47 +1,48 @@
 FROM       ubuntu:16.04
 MAINTAINER Warren Spits <warren@spits.id.au>
 
-RUN apt-get update
+#RUN sed -ie 's/archive\.ubuntu\.com/ftp.iinet.net.au\/pub/' /etc/apt/sources.list
+RUN rm -rf /var/lib/apt/lists/* && apt-get update
 
-RUN apt-get install -y openssh-server tmux zsh git vim
-RUN apt-get install -y golang-1.6
-RUN apt-get install -y golang
-RUN apt-get install -y docker.io aptitude ruby2.3 ruby2.3-dev nodejs npm sudo
-RUN apt-get install -y curl man-db
+RUN apt-get install -y xz-utils
+RUN apt-get install -y openssh-server tmux zsh git curl man-db sudo iputils-ping
+RUN apt-get install -y aptitude software-properties-common
+RUN apt-get install -y docker.io ruby2.3 ruby2.3-dev nodejs npm python3-pip python3
+RUN apt-get install -y golang golang-1.6
+
+COPY ca-certificates/ /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+
+RUN add-apt-repository ppa:neovim-ppa/unstable && \
+  apt-get update && apt-get install -y neovim
+RUN update-alternatives --install /usr/bin/vi vi /usr/bin/nvim 60 && \
+  update-alternatives --install /usr/bin/vim vim /usr/bin/nvim 60 && \
+  update-alternatives --install /usr/bin/editor editor /usr/bin/nvim 60
 
 RUN mkdir /var/run/sshd
-
 RUN sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
 RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
-
 EXPOSE 22
 
 RUN ln -sf /usr/share/zoneinfo/Australia/Melbourne /etc/localtime
 
-RUN echo 'root:root' |chpasswd
-RUN adduser warren --disabled-password --gecos ""
-RUN usermod warren -G sudo -a
-RUN echo '/bin/zsh' | chsh warren
-RUN su warren -l -c 'sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"'
-
-RUN echo 'export GOPATH=$HOME/go' >> /home/warren/.zshrc && \
-  echo 'PATH=$HOME/go/bin:$PATH' >> /home/warren/.zshrc && \
-  sed -i 's/^ZSH_THEME=.*/ZSH_THEME="tjkirch_mod"/' /home/warren/.zshrc && \
-  sed -i 's/^plugins=.*/plugins=(git gitignore ruby golang node docker)/' /home/warren/.zshrc
-
-RUN mkdir -p ~/.vim/autoload ~/.vim/bundle && \
-  curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim && \
-  cd ~/.vim/bundle && \ 
-  git clone https://github.com/tpope/vim-sensible.git && \
-  git clone https://github.com/fatih/vim-go.git && \
-  git clone https://github.com/Shougo/neocomplete.vim.git && \
-  git clone https://github.com/scrooloose/syntastic.git && \
-  git clone https://github.com/scrooloose/nerdtree.git
+RUN adduser warren --disabled-password --shell /bin/zsh --gecos "" && \
+  usermod warren -G sudo,users -a && \
+  passwd -d warren
 
 COPY home/ /home/warren/
 RUN chown -R warren:warren /home/warren
-RUN passwd -d warren
 
-RUN apt-get install -y iputils-ping
+USER warren
 
+RUN pip3 install setuptools
+RUN pip3 install neovim
+
+RUN curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
+  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
+#RUN nvim -c 'PlugInstall' -c 'UpdateRemotePlugins' -c 'qa!'
+#RUN nvim +GoInstallBinaries +qall
+
+USER root
 CMD    ["/usr/sbin/sshd", "-D"]
