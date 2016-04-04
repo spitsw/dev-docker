@@ -41,6 +41,8 @@ RUN pip3 install neovim
 RUN curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
   https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
+ENV NVIM_TUI_ENABLE_TRUE_COLOR=1
+ENV LANG=en_AU.UTF-8
 #RUN nvim -c 'PlugInstall' -c 'UpdateRemotePlugins' -c 'qa!'
 #RUN nvim +GoInstallBinaries +qall
 

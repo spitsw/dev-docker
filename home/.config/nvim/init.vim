@@ -5,12 +5,13 @@ Plug 'fatih/vim-go'
 Plug 'Shougo/deoplete.nvim'
 Plug 'zchee/deoplete-go', { 'do': 'make'}
 Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 Plug 'benekastah/neomake'
 
 Plug 'Shougo/neosnippet.vim'
 Plug 'Shougo/neosnippet-snippets'
 
-Plug 'tomasr/molokai'
+Plug 'w0ng/vim-hybrid'
 
 call plug#end()
 
@@ -53,11 +54,7 @@ let g:deoplete#ignore_sources = {}
 let g:deoplete#ignore_sources._ = ['buffer', 'member', 'tag', 'file', 'neosnippet']
 let g:deoplete#sources#go#sort_class = ['func', 'type', 'var', 'const']
 
-  " Use partial fuzzy matches like YouCompleteMe
-call deoplete#custom#set('_', 'matchers', ['matcher_full_fuzzy'])
-
-let g:rehash256 = 1
 set background=dark
-colorscheme molokai
+colorscheme hybrid
 
 let g:deoplete#enable_at_startup = 1
