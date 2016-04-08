@@ -56,5 +56,6 @@ let g:deoplete#sources#go#sort_class = ['func', 'type', 'var', 'const']
 
 set background=dark
 colorscheme hybrid
+let $NVIM_TUI_ENABLE_TRUE_COLOR = 1
 
 let g:deoplete#enable_at_startup = 1
