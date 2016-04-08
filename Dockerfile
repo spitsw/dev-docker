@@ -53,6 +53,7 @@ RUN curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
 ARG GOPATH=/home/warren/go
 RUN echo export GOPATH=$GOPATH >> ~/.zshrc
 RUN echo export PATH=\$GOPATH/bin:\$PATH >> ~/.zshrc
+RUN git clone https://github.com/9fans/go.git $GOPATH/src/9fans.net/go
 RUN go get -v github.com/nsf/gocode \
             github.com/alecthomas/gometalinter \
             golang.org/x/tools/cmd/goimports \
