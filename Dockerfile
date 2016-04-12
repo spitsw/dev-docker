@@ -5,11 +5,10 @@ RUN sed -ie 's/archive\.ubuntu\.com/mirror.aarnet.edu.au\/pub\/ubuntu\/archive/'
 RUN rm -rf /var/lib/apt/lists/* && apt-get update
 
 RUN apt-get install -y xz-utils
-RUN apt-get install -y openssh-server tmux zsh git curl man-db sudo iputils-ping
+RUN apt-get install -y openssh-server tmux zsh git curl man-db sudo iputils-ping mosh
 RUN apt-get install -y aptitude software-properties-common
-RUN apt-get install -y docker.io ruby2.3 ruby2.3-dev nodejs npm python3-pip python3
+RUN apt-get install -y docker.io ruby2.3 ruby2.3-dev nodejs npm python3-pip python3 exuberant-ctags
 RUN apt-get install -y golang golang-go.tools golang-1.6
-RUN apt-get install -y mosh
 
 COPY ca-certificates/ /usr/local/share/ca-certificates/
 RUN update-ca-certificates
@@ -39,10 +38,11 @@ RUN chown -R warren:warren /home/warren
 USER warren
 
 # Install oh-my-zsh
-RUN umask g-w,o-w;git clone --depth 1 https://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
+RUN umask g-w,o-w; git clone --depth 1 https://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
+RUN git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 RUN cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
 RUN sed -i 's/^ZSH_THEME=.*/ZSH_THEME="tjkirch_mod"/' ~/.zshrc
-RUN sed -i 's/^plugins=.*/plugins=(git gitignore ruby golang node docker)/' ~/.zshrc
+RUN sed -i 's/^plugins=.*/plugins=(git gitignore ruby golang node docker zsh-syntax-highlighting)/' ~/.zshrc
 
 RUN pip3 install setuptools
 RUN pip3 install neovim
@@ -65,8 +65,6 @@ RUN go get -v github.com/nsf/gocode \
             github.com/jstemmer/gotags \
             github.com/klauspost/asmfmt/cmd/asmfmt \
             github.com/fatih/motion
-
-#RUN nvim -c 'PlugInstall' -c 'UpdateRemotePlugins' -c 'qa!'
 
 USER root
 CMD    ["/usr/sbin/sshd", "-D"]
