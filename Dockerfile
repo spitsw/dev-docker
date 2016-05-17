@@ -5,7 +5,7 @@ RUN sed -ie 's/archive\.ubuntu\.com/mirror.aarnet.edu.au\/pub\/ubuntu\/archive/'
 RUN rm -rf /var/lib/apt/lists/* && apt-get update
 
 RUN apt-get install -y xz-utils
-RUN apt-get install -y openssh-server tmux zsh git curl man-db sudo iputils-ping mosh xsel
+RUN apt-get install -y openssh-server tmux zsh git curl man-db sudo iputils-ping mosh xsel htop
 RUN apt-get install -y aptitude software-properties-common
 RUN apt-get install -y docker.io ruby2.3 ruby2.3-dev nodejs npm python3-pip python3 exuberant-ctags
 RUN apt-get install -y golang golang-go.tools golang-1.6
@@ -53,6 +53,7 @@ RUN curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
 ARG GOPATH=/home/warren/go
 RUN echo export GOPATH=$GOPATH >> ~/.zshrc
 RUN echo export PATH=\$GOPATH/bin:\$PATH >> ~/.zshrc
+RUN echo export CDPATH=.:$GOPATH/src >> ~/.zshrc
 RUN git clone https://github.com/9fans/go.git $GOPATH/src/9fans.net/go
 RUN go get -v github.com/nsf/gocode \
             github.com/alecthomas/gometalinter \
