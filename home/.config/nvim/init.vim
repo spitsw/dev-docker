@@ -3,11 +3,15 @@ call plug#begin('~/.vim/plugged')
 Plug 'fatih/vim-go'
 Plug 'Shougo/deoplete.nvim'
 Plug 'zchee/deoplete-go', { 'do': 'make'}
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-Plug 'benekastah/neomake'
+
+Plug 'ctrlpvim/ctrlp.vim'
+
+Plug 'itchyny/lightline.vim'
+
+Plug 'tpope/vim-commentary'
 
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'ConradIrwin/vim-bracketed-paste'
 Plug 'unblevable/quick-scope'
 
 Plug 'SirVer/ultisnips'
@@ -19,6 +23,7 @@ Plug 'airblade/vim-gitgutter'
 Plug 'majutsushi/tagbar'
 
 Plug 'w0ng/vim-hybrid'
+Plug 'cocopon/lightline-hybrid.vim'
 
 call plug#end()
 
@@ -47,6 +52,9 @@ set pumheight=10             " Completion window max size
 let mapleader = ","
 let g:mapleader = ","
 
+" Remove search highlight
+nnoremap <silent> <leader><space> :nohlsearch<CR>
+
 " vim-go
 let g:go_fmt_fail_silently = 0
 let g:go_fmt_command = "goimports"
@@ -72,6 +80,7 @@ call deoplete#custom#set('_', 'converters', ['converter_remove_paren'])
 call deoplete#custom#set('_', 'disabled_syntaxes', ['Comment', 'String'])
 
 " tagbar
+nnoremap <silent> <leader>a :TagbarToggle<CR>
 let g:tagbar_type_go = {
     \ 'ctagstype' : 'go',
     \ 'kinds' : [
@@ -99,6 +108,55 @@ let g:tagbar_type_go = {
     \ 'ctagsbin'  : 'gotags',
     \ 'ctagsargs' : '-sort -silent'
     \ }
+
+" ==================== lightline = ====================
+let g:lightline = {
+  \ 'colorscheme': 'hybrid',
+  \ 'active': {
+  \   'left': [[ 'mode', 'paste' ],
+  \            [ 'fugitive', 'filename', 'readonly', 'modified', 'ctrlpmark'],
+  \            [ 'go' ]],
+  \ },
+  \ 'inactive': {
+  \    'left': [[ 'go' ]],
+  \ },
+  \ 'component_function': {
+  \   'fugitive': 'LightLineFugitive',
+  \   'modified': 'LightLineModified',
+  \   'ctrlpmark': 'LightLineCtrlPMark',
+  \   'go': 'LightLineGo'
+  \ }
+  \ }
+
+function! LightLineFugitive()
+  return exists('*fugitive#head') ? fugitive#head() : ''
+endfunction
+
+function! LightLineGo()
+  return exists('*go#jobcontrol#Statusline') ? go#jobcontrol#Statusline() : ''
+endfunction
+
+function! LightLineModified()
+  if &filetype == "help"
+    return ""
+  elseif &modified
+    return "+"
+  elseif &modifiable
+    return ""
+  else
+    return ""
+  endif
+endfunction
+
+function! LightLineCtrlPMark()
+  if expand('%:t') =~ 'ControlP'
+    call lightline#link('iR'[g:lightline.ctrlp_regex])
+    return lightline#concatenate([g:lightline.ctrlp_prev, g:lightline.ctrlp_item
+          \ , g:lightline.ctrlp_next], 0)
+  else
+    return ''
+  endif
+endfunction
 
 " ==================== delimitMate ====================
 let g:delimitMate_expand_cr = 1
@@ -134,6 +192,19 @@ function! g:UltiSnips_Reverse()
   return ""
 endfunction
 
+let g:ctrlp_status_func = {
+  \ 'main': 'CtrlPStatusFunc_1',
+  \ 'prog': 'CtrlPStatusFunc_2',
+  \ }
+
+function! CtrlPStatusFunc_1(focus, byfname, regex, prev, item, next, marked)
+  let g:lightline.ctrlp_regex = a:regex
+  let g:lightline.ctrlp_prev = a:prev
+  let g:lightline.ctrlp_item = a:item
+  let g:lightline.ctrlp_next = a:next
+  return lightline#statusline(0)
+endfunction
+
 
 if !exists("g:UltiSnipsJumpForwardTrigger")
   let g:UltiSnipsJumpForwardTrigger = "<tab>"
@@ -145,6 +216,9 @@ endif
 
 au InsertEnter * exec "inoremap <silent> " . g:UltiSnipsExpandTrigger . " <C-R>=g:UltiSnips_Complete()<cr>"
 au InsertEnter * exec "inoremap <silent> " . g:UltiSnipsJumpBackwardTrigger . " <C-R>=g:UltiSnips_Reverse()<cr>"
+
+" Enter automatically into the files directory
+autocmd BufEnter * silent! lcd %:p:h
 
 let g:qs_highlight_on_keys = ['f', 'F', 't', 'T'] " unblevable/quick-scope
 
@@ -174,5 +248,21 @@ set listchars=tab:▸\ ,eol:¬
 
 " Go settings
 au BufNewFile,BufRead *.go setlocal noet ts=4 sw=4 sts=4
+
+nmap <C-g> :GoDecls<cr>
+imap <C-g> <esc>:<C-u>GoDecls<cr>
+
+au FileType go nmap <Leader>s <Plug>(go-def-split)
+au FileType go nmap <Leader>v <Plug>(go-def-vertical)
+
+au FileType go nmap <Leader>i <Plug>(go-info)
+au FileType go nmap <Leader>l <Plug>(go-metalinter)
+
+au FileType go nmap <leader>r  <Plug>(go-run)
+
+au FileType go nmap <leader>b  <Plug>(go-build)
+au FileType go nmap <leader>t  <Plug>(go-test)
+au FileType go nmap <Leader>d <Plug>(go-doc)
+au FileType go nmap <Leader>c <Plug>(go-coverage)
 
 " vim:ts=2:sw=2:et
