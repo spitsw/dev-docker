@@ -3,6 +3,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'fatih/vim-go'
 Plug 'Shougo/deoplete.nvim'
 Plug 'zchee/deoplete-go', { 'do': 'make'}
+
 Plug 'ctrlpvim/ctrlp.vim'
 
 Plug 'itchyny/lightline.vim'
@@ -52,7 +53,7 @@ let mapleader = ","
 let g:mapleader = ","
 
 " Remove search highlight
-nnoremap <leader><space> :nohlsearch<CR>
+nnoremap <silent> <leader><space> :nohlsearch<CR>
 
 " vim-go
 let g:go_fmt_fail_silently = 0
@@ -79,6 +80,7 @@ call deoplete#custom#set('_', 'converters', ['converter_remove_paren'])
 call deoplete#custom#set('_', 'disabled_syntaxes', ['Comment', 'String'])
 
 " tagbar
+nnoremap <silent> <leader>a :TagbarToggle<CR>
 let g:tagbar_type_go = {
     \ 'ctagstype' : 'go',
     \ 'kinds' : [

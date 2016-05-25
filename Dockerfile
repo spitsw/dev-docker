@@ -5,10 +5,12 @@ RUN sed -ie 's/archive\.ubuntu\.com/mirror.aarnet.edu.au\/pub\/ubuntu\/archive/'
 RUN rm -rf /var/lib/apt/lists/* && apt-get update
 
 RUN apt-get install -y xz-utils
-RUN apt-get install -y openssh-server tmux zsh git curl man-db sudo iputils-ping mosh xsel htop
+RUN apt-get install -y openssh-server tmux zsh git curl man-db sudo iputils-ping mosh xsel htop dialog
 RUN apt-get install -y aptitude software-properties-common
-RUN apt-get install -y docker.io ruby2.3 ruby2.3-dev nodejs npm python3-pip python3 exuberant-ctags
+RUN apt-get install -y docker.io ruby2.3 ruby2.3-dev nodejs npm python3-pip python3 exuberant-ctags silversearcher-ag
+RUN apt-get install -y ncurses-dev libsqlite3-dev
 RUN apt-get install -y golang golang-go.tools golang-1.6
+RUN update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby2.3 400
 
 COPY ca-certificates/ /usr/local/share/ca-certificates/
 RUN update-ca-certificates
@@ -40,9 +42,13 @@ USER warren
 # Install oh-my-zsh
 RUN umask g-w,o-w; git clone --depth 1 https://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
 RUN git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+RUN git clone https://github.com/Treri/fzf-zsh.git ~/.oh-my-zsh/custom/plugins/fzf-zsh
 RUN cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
 RUN sed -i 's/^ZSH_THEME=.*/ZSH_THEME="tjkirch_mod"/' ~/.zshrc
-RUN sed -i 's/^plugins=.*/plugins=(git gitignore ruby golang node docker zsh-syntax-highlighting)/' ~/.zshrc
+RUN sed -i 's/^plugins=.*/plugins=(git gitignore ruby golang node docker zsh-syntax-highlighting fzf-zsh)/' ~/.zshrc
+
+# Install fzf
+RUN git clone https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --bin && ln -s ~/.fzf ~/.oh-my-zsh/custom/plugins/fzf
 
 RUN pip3 install setuptools
 RUN pip3 install neovim
@@ -54,18 +60,22 @@ ARG GOPATH=/home/warren/go
 RUN echo export GOPATH=$GOPATH >> ~/.zshrc
 RUN echo export PATH=\$GOPATH/bin:\$PATH >> ~/.zshrc
 RUN echo export CDPATH=.:$GOPATH/src >> ~/.zshrc
+RUN echo export FZF_DEFAULT_COMMAND=\'ag -g ""\' >> ~/.zshrc
+
 RUN git clone https://github.com/9fans/go.git $GOPATH/src/9fans.net/go
 RUN go get -v github.com/nsf/gocode \
             github.com/alecthomas/gometalinter \
             golang.org/x/tools/cmd/goimports \
-            github.com/rogpeppe/godef \
-            golang.org/x/tools/cmd/oracle \
+	    golang.org/x/tools/cmd/guru \
             golang.org/x/tools/cmd/gorename \
             github.com/golang/lint/golint \
             github.com/kisielk/errcheck \
             github.com/jstemmer/gotags \
+            github.com/rogpeppe/godef \
             github.com/klauspost/asmfmt/cmd/asmfmt \
-            github.com/fatih/motion
+            github.com/fatih/motion \
+	    github.com/zmb3/gogetdoc \
+	    github.com/josharian/impl
 
 USER root
 CMD    ["/usr/sbin/sshd", "-D"]
