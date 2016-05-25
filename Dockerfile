@@ -1,7 +1,7 @@
-FROM       ubuntu:16.04
+FROM       armhf/ubuntu:16.04
 MAINTAINER Warren Spits <warren@spits.id.au>
 
-RUN sed -ie 's/archive\.ubuntu\.com/mirror.aarnet.edu.au\/pub\/ubuntu\/archive/' /etc/apt/sources.list
+RUN sed -ie 's/ports\.ubuntu\.com\/ubuntu-ports/mirror.internode.on.net\/pub\/ubuntu-ports/' /etc/apt/sources.list
 RUN rm -rf /var/lib/apt/lists/* && apt-get update
 
 RUN apt-get install -y xz-utils
