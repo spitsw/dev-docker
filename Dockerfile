@@ -5,10 +5,10 @@ RUN sed -ie 's/archive\.ubuntu\.com/mirror.aarnet.edu.au\/pub\/ubuntu\/archive/'
 RUN rm -rf /var/lib/apt/lists/* && apt-get update
 
 RUN apt-get install -y xz-utils
-RUN apt-get install -y openssh-server tmux zsh git curl man-db sudo iputils-ping mosh xsel htop dialog
+RUN apt-get install -y openssh-server tmux zsh git curl man-db sudo iputils-ping mosh xsel htop strace ltrace lsof dialog
 RUN apt-get install -y aptitude software-properties-common
 RUN apt-get install -y docker.io ruby2.3 ruby2.3-dev nodejs npm python3-pip python3 exuberant-ctags silversearcher-ag
-RUN apt-get install -y ncurses-dev libsqlite3-dev
+RUN apt-get install -y ncurses-dev libsqlite3-dev tig
 RUN apt-get install -y golang golang-go.tools golang-1.6
 RUN update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby2.3 400
 
@@ -44,8 +44,8 @@ RUN umask g-w,o-w; git clone --depth 1 https://github.com/robbyrussell/oh-my-zsh
 RUN git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 RUN git clone https://github.com/Treri/fzf-zsh.git ~/.oh-my-zsh/custom/plugins/fzf-zsh
 RUN cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
-RUN sed -i 's/^ZSH_THEME=.*/ZSH_THEME="tjkirch_mod"/' ~/.zshrc
-RUN sed -i 's/^plugins=.*/plugins=(git gitignore ruby golang node docker zsh-syntax-highlighting fzf-zsh)/' ~/.zshrc
+RUN sed -i 's/^ZSH_THEME=.*/ZSH_THEME="blinks"/' ~/.zshrc
+RUN sed -i 's/^plugins=.*/plugins=(gitfast gitignore ruby golang node docker zsh-syntax-highlighting fzf-zsh)/' ~/.zshrc
 
 # Install fzf
 RUN git clone https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --bin && ln -s ~/.fzf ~/.oh-my-zsh/custom/plugins/fzf
