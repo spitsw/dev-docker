@@ -16,8 +16,8 @@ COPY ca-certificates/ /usr/local/share/ca-certificates/
 RUN update-ca-certificates
 
 RUN add-apt-repository ppa:neovim-ppa/unstable && \
-  apt-get update && apt-get install -y neovim
-RUN update-alternatives --install /usr/bin/vi vi /usr/bin/nvim 60 && \
+  apt-get update && apt-get install -y neovim && \
+  update-alternatives --install /usr/bin/vi vi /usr/bin/nvim 60 && \
   update-alternatives --install /usr/bin/vim vim /usr/bin/nvim 60 && \
   update-alternatives --install /usr/bin/editor editor /usr/bin/nvim 60
 
@@ -47,22 +47,20 @@ RUN cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
 RUN sed -i 's/^ZSH_THEME=.*/ZSH_THEME="blinks"/' ~/.zshrc
 RUN sed -i 's/^plugins=.*/plugins=(gitfast gitignore ruby golang node docker zsh-syntax-highlighting fzf-zsh)/' ~/.zshrc
 
-# Install fzf
-RUN git clone https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --bin && ln -s ~/.fzf ~/.oh-my-zsh/custom/plugins/fzf
-
-RUN pip3 install setuptools
-RUN pip3 install neovim
-
-RUN curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
+# install fzf, tpm, python neovim, vim plugin manager
+RUN git clone https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --bin && \
+  ln -s ~/.fzf ~/.oh-my-zsh/custom/plugins/fzf && \
+  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && \
+  pip3 install setuptools && pip3 install neovim && \
+  curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
   https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 ARG GOPATH=/home/warren/go
-RUN echo export GOPATH=$GOPATH >> ~/.zshrc
-RUN echo export PATH=\$GOPATH/bin:\$PATH >> ~/.zshrc
-RUN echo export CDPATH=.:$GOPATH/src >> ~/.zshrc
-RUN echo export FZF_DEFAULT_COMMAND=\'ag -g ""\' >> ~/.zshrc
+RUN (echo export GOPATH=$GOPATH && \
+  echo export PATH=\$GOPATH/bin:\$PATH && \
+  echo export CDPATH=.:$GOPATH/src && \
+  echo export FZF_DEFAULT_COMMAND=\'ag -g ""\' ) >> ~/.zshrc
 
-RUN git clone https://github.com/9fans/go.git $GOPATH/src/9fans.net/go
 RUN go get -v github.com/nsf/gocode \
             github.com/alecthomas/gometalinter \
             golang.org/x/tools/cmd/goimports \
