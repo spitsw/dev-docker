@@ -256,6 +256,7 @@ au FileType go nmap <leader>s <Plug>(go-def-split)
 au FileType go nmap <leader>v <Plug>(go-def-vertical)
 
 au FileType go nmap <leader>i <Plug>(go-info)
+au FileType go nmap <leader>m <Plug>(go-imports)
 au FileType go nmap <leader>l <Plug>(go-metalinter)
 
 au FileType go nmap <leader>r  <Plug>(go-run)

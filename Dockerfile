@@ -27,8 +27,7 @@ EXPOSE 22
 RUN ln -sf /usr/share/zoneinfo/Australia/Melbourne /etc/localtime
 
 COPY locale.gen /etc/
-RUN locale-gen
-RUN update-locale LANG=en_AU.UTF-8
+RUN locale-gen && update-locale LANG=en_AU.UTF-8
 
 RUN adduser warren --disabled-password --shell /bin/zsh --gecos "" && \
   usermod warren -G sudo,users -a && \

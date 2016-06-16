@@ -15,3 +15,5 @@
 	untracked = cyan
 [alias]
 	unstage = reset HEAD --
+[merge]
+	tool = vimdiff
