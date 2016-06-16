@@ -39,17 +39,18 @@ RUN chown -R warren:warren /home/warren
 USER warren
 
 # Install oh-my-zsh
-RUN umask g-w,o-w; git clone --depth 1 https://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
-RUN git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-RUN git clone https://github.com/Treri/fzf-zsh.git ~/.oh-my-zsh/custom/plugins/fzf-zsh
-RUN cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
-RUN sed -i 's/^ZSH_THEME=.*/ZSH_THEME="blinks"/' ~/.zshrc
-RUN sed -i 's/^plugins=.*/plugins=(gitfast gitignore ruby golang node docker zsh-syntax-highlighting fzf-zsh)/' ~/.zshrc
+RUN umask g-w,o-w; git clone --depth 1 https://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh && \
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && \
+  git clone https://github.com/Treri/fzf-zsh.git ~/.oh-my-zsh/custom/plugins/fzf-zsh && \
+  cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc && \
+  sed -i 's/^ZSH_THEME=.*/ZSH_THEME="blinks"/' ~/.zshrc && \
+  sed -i 's/^plugins=.*/plugins=(gitfast gitignore ruby golang node docker zsh-syntax-highlighting fzf-zsh)/' ~/.zshrc
 
 # install fzf, tpm, python neovim, vim plugin manager
 RUN git clone https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --bin && \
   ln -s ~/.fzf ~/.oh-my-zsh/custom/plugins/fzf && \
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && \
+  ~/.tmux/plugins/tpm/bin/install_plugins && \
   pip3 install setuptools && pip3 install neovim && \
   curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
   https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
