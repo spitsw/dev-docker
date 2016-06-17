@@ -24,7 +24,7 @@ RUN add-apt-repository ppa:neovim-ppa/unstable && \
 # Install dependencies for lastpass-cli
 # gcc-5 fails to build lastpass-cli, so install gcc-6
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test && \
-  apt-get update && apt-get install gcc-6 \
+  apt-get update && apt-get install -y gcc-6 \
     openssl libcurl4-openssl-dev libxml2 libssl-dev libxml2-dev pinentry-curses
 
 RUN mkdir /var/run/sshd
@@ -85,13 +85,13 @@ RUN go get -v \
 	    github.com/josharian/impl
 
 # Build lastpass-cli
-RUN git clone -b v0.9.0 https://github.com/lastpass/lastpass-cli.git ~/home/build/lastpass-cli && \
-  cd ~/home/build/lastpass-cli && make CC=gcc-6
+RUN git clone -b v0.9.0 https://github.com/lastpass/lastpass-cli.git ~/build/lastpass-cli && \
+  cd ~/build/lastpass-cli && make CC=gcc-6
 
 USER root
 
 # Install lastpass-cli
-RUN cd ~/home/build/lastpass-cli && make PREFIX=/usr/local install
+RUN cd /home/warren/build/lastpass-cli && make PREFIX=/usr/local install
 # Fix permissions
 RUN chown -R warren:warren /home/warren/.oh-my-zsh/custom 
 
