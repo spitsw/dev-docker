@@ -252,17 +252,18 @@ au BufNewFile,BufRead *.go setlocal noet ts=4 sw=4 sts=4
 nmap <C-g> :GoDecls<cr>
 imap <C-g> <esc>:<C-u>GoDecls<cr>
 
-au FileType go nmap <Leader>s <Plug>(go-def-split)
-au FileType go nmap <Leader>v <Plug>(go-def-vertical)
+au FileType go nmap <leader>s <Plug>(go-def-split)
+au FileType go nmap <leader>v <Plug>(go-def-vertical)
 
-au FileType go nmap <Leader>i <Plug>(go-info)
-au FileType go nmap <Leader>l <Plug>(go-metalinter)
+au FileType go nmap <leader>i <Plug>(go-info)
+au FileType go nmap <leader>m <Plug>(go-imports)
+au FileType go nmap <leader>l <Plug>(go-metalinter)
 
 au FileType go nmap <leader>r  <Plug>(go-run)
 
 au FileType go nmap <leader>b  <Plug>(go-build)
 au FileType go nmap <leader>t  <Plug>(go-test)
-au FileType go nmap <Leader>d <Plug>(go-doc)
-au FileType go nmap <Leader>c <Plug>(go-coverage)
+au FileType go nmap <leader>d <Plug>(go-doc)
+au FileType go nmap <leader>c <Plug>(go-coverage)
 
 " vim:ts=2:sw=2:et
