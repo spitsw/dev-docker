@@ -5,7 +5,7 @@ RUN sed -ie 's/archive\.ubuntu\.com/mirror.aarnet.edu.au\/pub\/ubuntu\/archive/'
 RUN rm -rf /var/lib/apt/lists/* && apt-get update
 
 RUN apt-get install -y xz-utils
-RUN apt-get install -y openssh-server tmux zsh git curl man-db sudo iputils-ping mosh xsel htop strace ltrace lsof dialog vim-common
+RUN apt-get install -y openssh-server tmux zsh git curl man-db sudo iputils-ping mosh xsel xclip htop strace ltrace lsof dialog vim-common
 RUN apt-get install -y aptitude software-properties-common
 RUN apt-get install -y docker.io ruby2.3 ruby2.3-dev nodejs npm python3-pip python3 exuberant-ctags silversearcher-ag
 RUN apt-get install -y ncurses-dev libsqlite3-dev tig
@@ -20,6 +20,12 @@ RUN add-apt-repository ppa:neovim-ppa/unstable && \
   update-alternatives --install /usr/bin/vi vi /usr/bin/nvim 60 && \
   update-alternatives --install /usr/bin/vim vim /usr/bin/nvim 60 && \
   update-alternatives --install /usr/bin/editor editor /usr/bin/nvim 60
+
+# Install dependencies for lastpass-cli
+# gcc-5 fails to build lastpass-cli, so install gcc-6
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test && \
+  apt-get update && apt-get install gcc-6 \
+    openssl libcurl4-openssl-dev libxml2 libssl-dev libxml2-dev pinentry-curses
 
 RUN mkdir /var/run/sshd
 EXPOSE 22
@@ -78,7 +84,15 @@ RUN go get -v \
 	    github.com/zmb3/gogetdoc \
 	    github.com/josharian/impl
 
+# Build lastpass-cli
+RUN git clone -b v0.9.0 https://github.com/lastpass/lastpass-cli.git ~/home/build/lastpass-cli && \
+  cd ~/home/build/lastpass-cli && make CC=gcc-6
+
 USER root
-RUN chown -R warren:warren /home/warren/.oh-my-zsh/custom # Fix permissions
+
+# Install lastpass-cli
+RUN cd ~/home/build/lastpass-cli && make PREFIX=/usr/local install
+# Fix permissions
+RUN chown -R warren:warren /home/warren/.oh-my-zsh/custom 
 
 CMD    ["/usr/sbin/sshd", "-D"]
