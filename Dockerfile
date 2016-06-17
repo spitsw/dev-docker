@@ -5,7 +5,7 @@ RUN sed -ie 's/archive\.ubuntu\.com/mirror.aarnet.edu.au\/pub\/ubuntu\/archive/'
 RUN rm -rf /var/lib/apt/lists/* && apt-get update
 
 RUN apt-get install -y xz-utils
-RUN apt-get install -y openssh-server tmux zsh git curl man-db sudo iputils-ping mosh xsel htop strace ltrace lsof dialog
+RUN apt-get install -y openssh-server tmux zsh git curl man-db sudo iputils-ping mosh xsel htop strace ltrace lsof dialog vim-common
 RUN apt-get install -y aptitude software-properties-common
 RUN apt-get install -y docker.io ruby2.3 ruby2.3-dev nodejs npm python3-pip python3 exuberant-ctags silversearcher-ag
 RUN apt-get install -y ncurses-dev libsqlite3-dev tig
@@ -33,7 +33,6 @@ RUN adduser warren --disabled-password --shell /bin/zsh --gecos "" && \
   usermod warren -G sudo,users -a && \
   passwd -d warren
 
-COPY home/ /home/warren/
 RUN chown -R warren:warren /home/warren
 
 USER warren
@@ -45,6 +44,8 @@ RUN umask g-w,o-w; git clone --depth 1 https://github.com/robbyrussell/oh-my-zsh
   cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc && \
   sed -i 's/^ZSH_THEME=.*/ZSH_THEME="blinks"/' ~/.zshrc && \
   sed -i 's/^plugins=.*/plugins=(gitfast gitignore ruby golang node docker zsh-syntax-highlighting fzf-zsh)/' ~/.zshrc
+
+COPY home/ /home/warren/
 
 # install fzf, tpm, python neovim, vim plugin manager
 RUN git clone https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --bin && \
@@ -61,7 +62,9 @@ RUN (echo export GOPATH=$GOPATH && \
   echo export CDPATH=.:$GOPATH/src && \
   echo export FZF_DEFAULT_COMMAND=\'ag -g ""\' ) >> ~/.zshrc
 
-RUN go get -v github.com/nsf/gocode \
+RUN go get -v \
+            github.com/github/hub \
+            github.com/nsf/gocode \
             github.com/alecthomas/gometalinter \
             golang.org/x/tools/cmd/goimports \
 	    golang.org/x/tools/cmd/guru \
