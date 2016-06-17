@@ -33,6 +33,7 @@ RUN adduser warren --disabled-password --shell /bin/zsh --gecos "" && \
   usermod warren -G sudo,users -a && \
   passwd -d warren
 
+COPY home/ /home/warren/
 RUN chown -R warren:warren /home/warren
 
 USER warren
@@ -44,8 +45,7 @@ RUN umask g-w,o-w; git clone --depth 1 https://github.com/robbyrussell/oh-my-zsh
   cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc && \
   sed -i 's/^ZSH_THEME=.*/ZSH_THEME="blinks"/' ~/.zshrc && \
   sed -i 's/^plugins=.*/plugins=(gitfast gitignore ruby golang node docker zsh-syntax-highlighting fzf-zsh)/' ~/.zshrc
-
-COPY home/ /home/warren/
+COPY zsh_custom/ /home/warren/.oh-my-zsh/custom
 
 # install fzf, tpm, python neovim, vim plugin manager
 RUN git clone https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --bin && \
@@ -79,4 +79,6 @@ RUN go get -v \
 	    github.com/josharian/impl
 
 USER root
+RUN chown -R warren:warren /home/warren/.oh-my-zsh/custom # Fix permissions
+
 CMD    ["/usr/sbin/sshd", "-D"]
