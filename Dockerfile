@@ -1,7 +1,5 @@
-FROM       spitsw/armhf-ubuntu-qemu
+FROM       armhf/ubuntu:16.04
 MAINTAINER Warren Spits <warren@spits.id.au>
-
-RUN [ "cross-build-start" ]
 
 RUN sed -ie 's/ports\.ubuntu\.com\/ubuntu-ports/mirror.internode.on.net\/pub\/ubuntu-ports/' /etc/apt/sources.list
 RUN rm -rf /var/lib/apt/lists/* && apt-get update
@@ -81,5 +79,3 @@ RUN go get -v github.com/nsf/gocode \
 
 USER root
 CMD    ["/usr/sbin/sshd", "-D"]
-
-RUN [ "cross-build-end" ]
