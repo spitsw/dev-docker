@@ -17,3 +17,5 @@
 	unstage = reset HEAD --
 [merge]
 	tool = vimdiff
+[diff]
+	compactionHeuristic = true

@@ -5,7 +5,7 @@ RUN sed -ie 's/archive\.ubuntu\.com/mirror.aarnet.edu.au\/pub\/ubuntu\/archive/'
 RUN rm -rf /var/lib/apt/lists/* && apt-get update
 
 RUN apt-get install -y xz-utils
-RUN apt-get install -y openssh-server tmux zsh git curl man-db sudo iputils-ping mosh xsel xclip htop strace ltrace lsof dialog vim-common
+RUN apt-get install -y openssh-server tmux zsh curl man-db sudo iputils-ping mosh xsel xclip htop strace ltrace lsof dialog vim-common
 RUN apt-get install -y aptitude software-properties-common
 RUN apt-get install -y docker.io ruby2.3 ruby2.3-dev nodejs npm python3-pip python3 exuberant-ctags silversearcher-ag
 RUN apt-get install -y ncurses-dev libsqlite3-dev tig
@@ -26,6 +26,10 @@ RUN add-apt-repository ppa:neovim-ppa/unstable && \
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test && \
   apt-get update && apt-get install -y gcc-6 \
     openssl libcurl4-openssl-dev libxml2 libssl-dev libxml2-dev pinentry-curses
+
+# Install git ppa for latest stable
+RUN add-apt-repository ppa:git-core/ppa && \
+  apt-get update && apt-get install git
 
 RUN mkdir /var/run/sshd
 EXPOSE 22
