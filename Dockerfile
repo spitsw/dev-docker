@@ -66,6 +66,11 @@ RUN git clone https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --bin
   curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
   https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
+# Install nvm with node and npm
+RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash \
+    && source ~/.nvm/nvm.sh \
+    && nvm install --lts
+
 ARG GOPATH=/home/warren/go
 RUN (echo export GOPATH=$GOPATH && \
   echo export PATH=\$GOPATH/bin:\$PATH && \
