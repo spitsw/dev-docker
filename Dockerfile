@@ -5,9 +5,14 @@ RUN sed -ie 's/archive\.ubuntu\.com/mirror.aarnet.edu.au\/pub\/ubuntu\/archive/'
 RUN rm -rf /var/lib/apt/lists/* && apt-get update
 
 RUN apt-get install -y xz-utils
-RUN apt-get install -y openssh-server tmux zsh curl man-db sudo iputils-ping mosh xsel xclip htop strace ltrace lsof dialog vim-common
+RUN apt-get install -y openssh-server tmux zsh curl man-db sudo iputils-ping \
+	               mosh xsel xclip htop strace ltrace lsof dialog vim-common
 RUN apt-get install -y aptitude software-properties-common
-RUN apt-get install -y docker.io ruby2.3 ruby2.3-dev nodejs npm python3-pip python3 exuberant-ctags silversearcher-ag
+RUN apt-get install -y docker.io ruby2.3 ruby2.3-dev \
+                       nodejs npm \
+                       python3-pip python3 \
+                       python-pip python \
+                       build-essential autoconf exuberant-ctags silversearcher-ag
 RUN apt-get install -y ncurses-dev libsqlite3-dev tig
 RUN apt-get install -y golang golang-go.tools golang-1.6
 RUN update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby2.3 400
@@ -29,7 +34,7 @@ RUN add-apt-repository ppa:ubuntu-toolchain-r/test && \
 
 # Install git ppa for latest stable
 RUN add-apt-repository ppa:git-core/ppa && \
-  apt-get update && apt-get install git
+  apt-get update && apt-get install -y git
 
 RUN mkdir /var/run/sshd
 EXPOSE 22
@@ -63,13 +68,17 @@ RUN git clone https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --bin
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && \
   ~/.tmux/plugins/tpm/bin/install_plugins && \
   pip3 install setuptools && pip3 install neovim && \
+  pip install setuptools && pip install neovim && \
   curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
   https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 # Install nvm with node and npm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash \
-    && source ~/.nvm/nvm.sh \
-    && nvm install --lts
+    && NVM_DIR=/home/warren/.nvm && . $NVM_DIR/nvm.sh \
+    && nvm install --lts node \
+    && npm install -g --upgrade npm
+RUN NVM_DIR=/home/warren/.nvm && . $NVM_DIR/nvm.sh \
+    && npm install -g tern eslint_d yo
 
 ARG GOPATH=/home/warren/go
 RUN (echo export GOPATH=$GOPATH && \
@@ -94,7 +103,7 @@ RUN go get -v \
 	    github.com/josharian/impl
 
 # Build lastpass-cli
-RUN git clone -b v0.9.0 https://github.com/lastpass/lastpass-cli.git ~/build/lastpass-cli && \
+RUN git clone -b v1.0.0 https://github.com/lastpass/lastpass-cli.git ~/build/lastpass-cli && \
   cd ~/build/lastpass-cli && make CC=gcc-6
 
 USER root
