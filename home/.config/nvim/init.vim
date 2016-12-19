@@ -1,8 +1,15 @@
 call plug#begin('~/.vim/plugged')
 
 Plug 'fatih/vim-go'
-Plug 'Shougo/deoplete.nvim'
-Plug 'zchee/deoplete-go', { 'do': 'make'}
+Plug 'ekalinin/Dockerfile.vim', {'for' : 'Dockerfile'}
+Plug 'elzr/vim-json', {'for' : 'json'}
+Plug 'ternjs/tern_for_vim', { 'for': ['javascript', 'javascript.jsx'] }
+
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'carlitux/deoplete-ternjs', { 'for': ['javascript', 'javascript.jsx'] }
+Plug 'zchee/deoplete-go', { 'do': 'make' }
+
+Plug 'ervandew/supertab'
 
 Plug 'ctrlpvim/ctrlp.vim'
 
@@ -10,15 +17,18 @@ Plug 'itchyny/lightline.vim'
 
 Plug 'tpope/vim-commentary'
 
+Plug 'tmux-plugins/vim-tmux'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'ConradIrwin/vim-bracketed-paste'
 Plug 'unblevable/quick-scope'
 
 Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
 Plug 'Raimondi/delimitMate'
 
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
+Plug 'neomake/neomake'
 
 Plug 'majutsushi/tagbar'
 
@@ -56,28 +66,19 @@ let g:mapleader = ","
 nnoremap <silent> <leader><space> :nohlsearch<CR>
 
 " vim-go
-let g:go_fmt_fail_silently = 0
+let g:go_fmt_fail_silently = 1
 let g:go_fmt_command = "goimports"
 let g:go_autodetect_gopath = 1
-let g:go_term_enabled = 0
-let g:go_term_mode = "split"
+let g:go_list_type = "quickfix"
+let g:go_auto_type_info = 0
+let g:go_echo_command_info = 0
+let g:go_async_run = 1
+
 let g:go_highlight_space_tab_error = 0
 let g:go_highlight_array_whitespace_error = 0
 let g:go_highlight_trailing_whitespace_error = 0
 let g:go_highlight_extra_types = 0
-let g:go_highlight_operators = 0
 let g:go_highlight_build_constraints = 1
-
-let g:deoplete#enable_at_startup = 1
-let g:deoplete#enable_smart_case = 1
-let g:deoplete#ignore_sources = {}
-let g:deoplete#ignore_sources._ = ['buffer', 'member', 'tag', 'file']
-let g:deoplete#sources#go#sort_class = ['func', 'type', 'var', 'const']
-let g:deoplete#sources#go#align_class = 1
-
-call deoplete#custom#set('_', 'matchers', ['matcher_fuzzy'])
-call deoplete#custom#set('_', 'converters', ['converter_remove_paren'])
-call deoplete#custom#set('_', 'disabled_syntaxes', ['Comment', 'String'])
 
 " tagbar
 nnoremap <silent> <leader>a :TagbarToggle<CR>
@@ -158,40 +159,7 @@ function! LightLineCtrlPMark()
   endif
 endfunction
 
-" ==================== delimitMate ====================
-let g:delimitMate_expand_cr = 1
-let g:delimitMate_expand_space = 1
-let g:delimitMate_smart_quotes = 1
-let g:delimitMate_expand_inside_quotes = 0
-let g:delimitMate_smart_matchpairs = '^\%(\w\|\$\)'
-
-imap <expr> <CR> pumvisible() ? "\<c-y>" : "<Plug>delimitMateCR"
-
-" ==================== UltiSnips ====================
-function! g:UltiSnips_Complete()
-  call UltiSnips#ExpandSnippet()
-  if g:ulti_expand_res == 0
-    if pumvisible()
-      return "\<C-n>"
-    else
-      call UltiSnips#JumpForwards()
-      if g:ulti_jump_forwards_res == 0
-        return "\<TAB>"
-      endif
-    endif
-  endif
-  return ""
-endfunction
-
-function! g:UltiSnips_Reverse()
-  call UltiSnips#JumpBackwards()
-  if g:ulti_jump_backwards_res == 0
-    return "\<C-P>"
-  endif
-
-  return ""
-endfunction
-
+" =================== CtrlP =========================
 let g:ctrlp_status_func = {
   \ 'main': 'CtrlPStatusFunc_1',
   \ 'prog': 'CtrlPStatusFunc_2',
@@ -205,17 +173,24 @@ function! CtrlPStatusFunc_1(focus, byfname, regex, prev, item, next, marked)
   return lightline#statusline(0)
 endfunction
 
+function! CtrlPStatusFunc_2(str)
+  return lightline#statusline(0)
+endfunction
 
-if !exists("g:UltiSnipsJumpForwardTrigger")
-  let g:UltiSnipsJumpForwardTrigger = "<tab>"
-endif
+" ==================== Deoplete =====================
+let g:deoplete#enable_at_startup = 1
+let g:deoplete#sources#go#sort_class = ['func', 'type', 'var', 'const']
+let g:deoplete#sources#go#align_class = 1
 
-if !exists("g:UltiSnipsJumpBackwardTrigger")
-  let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
-endif
+" ==================== UltiSnips ====================
+autocmd FileType javascript let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
+let g:UltiSnipsExpandTrigger="<C-j>"
+inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
 
-au InsertEnter * exec "inoremap <silent> " . g:UltiSnipsExpandTrigger . " <C-R>=g:UltiSnips_Complete()<cr>"
-au InsertEnter * exec "inoremap <silent> " . g:UltiSnipsJumpBackwardTrigger . " <C-R>=g:UltiSnips_Reverse()<cr>"
+" ===================== Neomake =====================
+let g:neomake_javascript_enabled_makers = ['eslint_d']
+let g:neomake_open_list=2
+autocmd! BufWritePost * Neomake
 
 " Enter automatically into the files directory
 autocmd BufEnter * silent! lcd %:p:h
@@ -252,18 +227,19 @@ au BufNewFile,BufRead *.go setlocal noet ts=4 sw=4 sts=4
 nmap <C-g> :GoDecls<cr>
 imap <C-g> <esc>:<C-u>GoDecls<cr>
 
-au FileType go nmap <leader>s <Plug>(go-def-split)
-au FileType go nmap <leader>v <Plug>(go-def-vertical)
+au FileType go nmap <Leader>s <Plug>(go-def-split)
+au FileType go nmap <Leader>v <Plug>(go-def-vertical)
 
-au FileType go nmap <leader>i <Plug>(go-info)
+au FileType go nmap <Leader>i <Plug>(go-info)
+au FileType go nmap <Leader>p <Plug>(go-implements)
 au FileType go nmap <leader>m <Plug>(go-imports)
-au FileType go nmap <leader>l <Plug>(go-metalinter)
+au FileType go nmap <Leader>l <Plug>(go-metalinter)
 
 au FileType go nmap <leader>r  <Plug>(go-run)
 
 au FileType go nmap <leader>b  <Plug>(go-build)
 au FileType go nmap <leader>t  <Plug>(go-test)
-au FileType go nmap <leader>d <Plug>(go-doc)
-au FileType go nmap <leader>c <Plug>(go-coverage)
+au FileType go nmap <Leader>d <Plug>(go-doc)
+au FileType go nmap <Leader>c <Plug>(go-coverage)
 
 " vim:ts=2:sw=2:et
