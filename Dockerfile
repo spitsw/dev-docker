@@ -33,8 +33,8 @@ RUN add-apt-repository ppa:ubuntu-toolchain-r/test && \
     openssl libcurl4-openssl-dev libxml2 libssl-dev libxml2-dev pinentry-curses
 
 # Install git ppa for latest stable
-RUN add-apt-repository ppa:git-core/ppa && \
-  apt-get update && apt-get install -y git
+RUN  add-apt-repository ppa:git-core/ppa \
+  && apt-get update && apt-get install -y git
 
 RUN mkdir /var/run/sshd
 EXPOSE 22
@@ -47,6 +47,10 @@ RUN locale-gen && update-locale LANG=en_AU.UTF-8
 RUN adduser warren --disabled-password --shell /bin/zsh --gecos "" && \
   usermod warren -G sudo,users -a && \
   passwd -d warren
+
+# Change the sudo config
+RUN  perl -i -pe 's|(%sudo.*\s+)ALL$|$1NOPASSWD:ALL|g' /etc/sudoers \
+  && echo 'Defaults env_keep = "http_proxy https_proxy ftp_proxy DISPLAY XAUTHORITY"' > /etc/sudoers.d/preserve_env¬
 
 COPY home/ /home/warren/
 RUN chown -R warren:warren /home/warren
@@ -76,9 +80,10 @@ RUN git clone https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --bin
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash \
     && NVM_DIR=/home/warren/.nvm && . $NVM_DIR/nvm.sh \
     && nvm install --lts node \
+    && npm config set cafile /etc/ssl/certs/ca-certificates.crt \
     && npm install -g --upgrade npm
 RUN NVM_DIR=/home/warren/.nvm && . $NVM_DIR/nvm.sh \
-    && npm install -g tern eslint_d yo
+    && npm install -g yarn tern eslint_d yo
 
 ARG GOPATH=/home/warren/go
 RUN (echo export GOPATH=$GOPATH && \
