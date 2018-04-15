@@ -11,7 +11,8 @@ Plug 'zchee/deoplete-go', { 'do': 'make' }
 
 Plug 'ervandew/supertab'
 
-Plug 'ctrlpvim/ctrlp.vim'
+Plug 'junegunn/fzf',  { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
 
 Plug 'itchyny/lightline.vim'
 
@@ -35,9 +36,10 @@ Plug 'majutsushi/tagbar'
 Plug 'w0ng/vim-hybrid'
 Plug 'cocopon/lightline-hybrid.vim'
 
+Plug 'editorconfig/editorconfig-vim'
+
 call plug#end()
 
-set noerrorbells             " No beeps
 set number                   " Show line number on the current line
 set relativenumber           " Show relative numbers
 set showcmd                  " Show me what I'm typing
@@ -59,11 +61,15 @@ set cursorline
 
 set pumheight=10             " Completion window max size
 
+set termguicolors
+
 let mapleader = ","
 let g:mapleader = ","
 
 " Remove search highlight
 nnoremap <silent> <leader><space> :nohlsearch<CR>
+
+nmap <leader><tab> <plug>(fzf-maps-n)
 
 " vim-go
 let g:go_fmt_fail_silently = 1
@@ -115,7 +121,7 @@ let g:lightline = {
   \ 'colorscheme': 'hybrid',
   \ 'active': {
   \   'left': [[ 'mode', 'paste' ],
-  \            [ 'fugitive', 'filename', 'readonly', 'modified', 'ctrlpmark'],
+  \            [ 'fugitive', 'filename', 'readonly', 'modified'],
   \            [ 'go' ]],
   \ },
   \ 'inactive': {
@@ -124,7 +130,6 @@ let g:lightline = {
   \ 'component_function': {
   \   'fugitive': 'LightLineFugitive',
   \   'modified': 'LightLineModified',
-  \   'ctrlpmark': 'LightLineCtrlPMark',
   \   'go': 'LightLineGo'
   \ }
   \ }
@@ -149,33 +154,12 @@ function! LightLineModified()
   endif
 endfunction
 
-function! LightLineCtrlPMark()
-  if expand('%:t') =~ 'ControlP'
-    call lightline#link('iR'[g:lightline.ctrlp_regex])
-    return lightline#concatenate([g:lightline.ctrlp_prev, g:lightline.ctrlp_item
-          \ , g:lightline.ctrlp_next], 0)
-  else
-    return ''
-  endif
-endfunction
+" =================== EditorConfig ==================
+let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
 
-" =================== CtrlP =========================
-let g:ctrlp_status_func = {
-  \ 'main': 'CtrlPStatusFunc_1',
-  \ 'prog': 'CtrlPStatusFunc_2',
-  \ }
-
-function! CtrlPStatusFunc_1(focus, byfname, regex, prev, item, next, marked)
-  let g:lightline.ctrlp_regex = a:regex
-  let g:lightline.ctrlp_prev = a:prev
-  let g:lightline.ctrlp_item = a:item
-  let g:lightline.ctrlp_next = a:next
-  return lightline#statusline(0)
-endfunction
-
-function! CtrlPStatusFunc_2(str)
-  return lightline#statusline(0)
-endfunction
+" ======================= FZF =======================
+nmap <silent> ; :Buffers<cr>
+nmap <silent> <leader>t :Files<cr>
 
 " ==================== Deoplete =====================
 let g:deoplete#enable_at_startup = 1
@@ -197,12 +181,11 @@ autocmd BufEnter * silent! lcd %:p:h
 
 let g:qs_highlight_on_keys = ['f', 'F', 't', 'T'] " unblevable/quick-scope
 
-let g:gitgutter_sign_column_always = 1
+set signcolumn=yes
 set updatetime=250
 
 set background=dark
 colorscheme hybrid
-let $NVIM_TUI_ENABLE_TRUE_COLOR = 1
 
 nnoremap <c-j> <c-w>j
 nnoremap <c-k> <c-w>k
@@ -242,4 +225,6 @@ au FileType go nmap <leader>t  <Plug>(go-test)
 au FileType go nmap <Leader>d <Plug>(go-doc)
 au FileType go nmap <Leader>c <Plug>(go-coverage)
 
+highlight Comment gui=italic
+highlight Statement gui=italic
 " vim:ts=2:sw=2:et
