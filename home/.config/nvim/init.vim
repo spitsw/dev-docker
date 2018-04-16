@@ -11,6 +11,8 @@ Plug 'zchee/deoplete-go', { 'do': 'make' }
 
 Plug 'ervandew/supertab'
 
+Plug 'w0rp/ale'
+
 Plug 'junegunn/fzf',  { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
@@ -29,7 +31,6 @@ Plug 'Raimondi/delimitMate'
 
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
-Plug 'neomake/neomake'
 
 Plug 'majutsushi/tagbar'
 
@@ -166,15 +167,19 @@ let g:deoplete#enable_at_startup = 1
 let g:deoplete#sources#go#sort_class = ['func', 'type', 'var', 'const']
 let g:deoplete#sources#go#align_class = 1
 
+" ======================= ALE =======================
+let g:ale_javascript_eslint_use_global = 1
+let g:ale_javascript_eslint_executable = 'eslint_d'
+let g:ale_fixers = {
+  \ 'javascript': ['eslint']
+  \ }
+let g:ale_sign_error = '✘'
+let g:ale_sign_warning = '⚠'
+
 " ==================== UltiSnips ====================
 autocmd FileType javascript let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
 let g:UltiSnipsExpandTrigger="<C-j>"
 inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-
-" ===================== Neomake =====================
-let g:neomake_javascript_enabled_makers = ['eslint_d']
-let g:neomake_open_list=2
-autocmd! BufWritePost * Neomake
 
 " Enter automatically into the files directory
 autocmd BufEnter * silent! lcd %:p:h
@@ -227,4 +232,5 @@ au FileType go nmap <Leader>c <Plug>(go-coverage)
 
 highlight Comment gui=italic
 highlight Statement gui=italic
+
 " vim:ts=2:sw=2:et
