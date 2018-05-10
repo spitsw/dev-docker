@@ -6,7 +6,7 @@ RUN rm -rf /var/lib/apt/lists/* && apt-get update
 
 RUN apt-get install -y xz-utils
 RUN apt-get install -y openssh-server tmux zsh curl man-db sudo iputils-ping locales \
-	               mosh xsel xclip htop strace ltrace lsof dialog vim-common
+	               tzdata mosh xsel xclip htop strace ltrace lsof dialog vim-common
 RUN apt-get install -y aptitude software-properties-common
 RUN echo 'docker.io docker.io/restart boolean true' | debconf-set-selections
 RUN apt-get install -y docker.io ruby2.5 ruby2.5-dev \
@@ -38,6 +38,7 @@ RUN  add-apt-repository ppa:git-core/ppa \
 RUN mkdir /var/run/sshd
 EXPOSE 22
 
+RUN rm /etc/update-motd.d/*
 RUN ln -sf /usr/share/zoneinfo/Australia/Melbourne /etc/localtime
 
 RUN apt-get install -y locales
@@ -83,13 +84,13 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | b
     && npm config set cafile /etc/ssl/certs/ca-certificates.crt \
     && npm install -g --upgrade npm
 RUN NVM_DIR=/home/warren/.nvm && . $NVM_DIR/nvm.sh \
-    && npm install -g yarn tern eslint_d yo
+    && npm install -g yarn eslint_d javascript-typescript-langserver import-js
 
 ARG GOPATH=/home/warren/go
 RUN (echo export GOPATH=$GOPATH && \
   echo export PATH=\$GOPATH/bin:\$PATH && \
   echo export CDPATH=.:$GOPATH/src && \
-  echo export FZF_DEFAULT_COMMAND=\'ag -g --nocolor \"\"\' ) >> ~/.zshrc
+  echo export FZF_DEFAULT_COMMAND=\'ag --nocolor -g \"\"\' ) >> ~/.zshrc
 
 RUN go get -v \
             github.com/github/hub \
@@ -106,6 +107,9 @@ RUN go get -v \
             github.com/fatih/motion \
 	    github.com/zmb3/gogetdoc \
 	    github.com/josharian/impl
+
+RUN nvim +PlugInstall +UpdateRemotePlugins +qa && \
+  nvim +GoInstallBinaries +qa
 
 # Build lastpass-cli
 RUN git clone -b v1.3.0 https://github.com/lastpass/lastpass-cli.git ~/build/lastpass-cli && \

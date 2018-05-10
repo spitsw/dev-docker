@@ -3,11 +3,18 @@ call plug#begin('~/.vim/plugged')
 Plug 'fatih/vim-go'
 Plug 'ekalinin/Dockerfile.vim', {'for' : 'Dockerfile'}
 Plug 'elzr/vim-json', {'for' : 'json'}
-Plug 'ternjs/tern_for_vim', { 'for': ['javascript', 'javascript.jsx'] }
+
+Plug 'autozimu/LanguageClient-neovim', {
+  \ 'branch': 'next',
+  \ 'do': 'bash install.sh'
+  \ }
+
+Plug 'posva/vim-vue'
+Plug 'Galooshi/vim-import-js'
 
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'carlitux/deoplete-ternjs', { 'for': ['javascript', 'javascript.jsx'] }
 Plug 'zchee/deoplete-go', { 'do': 'make' }
+
 
 Plug 'ervandew/supertab'
 
@@ -17,16 +24,16 @@ Plug 'junegunn/fzf',  { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
 Plug 'itchyny/lightline.vim'
+Plug 'maximbaz/lightline-ale'
 
-Plug 'tpope/vim-commentary'
+Plug 'tyru/caw.vim'
+Plug 'Shougo/context_filetype.vim'
 
 Plug 'tmux-plugins/vim-tmux'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'ConradIrwin/vim-bracketed-paste'
 Plug 'unblevable/quick-scope'
 
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
 Plug 'Raimondi/delimitMate'
 
 Plug 'tpope/vim-fugitive'
@@ -59,6 +66,7 @@ set smartcase                " ... but not it begins with upper case
 set completeopt=menu,menuone
 set nocursorcolumn           " speed up syntax highlighting
 set cursorline
+set mouse=a
 
 set pumheight=10             " Completion window max size
 
@@ -70,7 +78,7 @@ let g:mapleader = ","
 " Remove search highlight
 nnoremap <silent> <leader><space> :nohlsearch<CR>
 
-nmap <leader><tab> <plug>(fzf-maps-n)
+nmap <leader>d     <plug>(ale_fix)
 
 " vim-go
 let g:go_fmt_fail_silently = 1
@@ -118,20 +126,25 @@ let g:tagbar_type_go = {
     \ }
 
 " ==================== lightline = ====================
+let g:lightline#ale#indicator_errors = '✘'
+let g:lightline#ale#indicator_warnings = '⚠'
 let g:lightline = {
   \ 'colorscheme': 'hybrid',
   \ 'active': {
   \   'left': [[ 'mode', 'paste' ],
   \            [ 'fugitive', 'filename', 'readonly', 'modified'],
+  \            [ 'linter_checking', 'linter_errors', 'linter_warnings' ],
   \            [ 'go' ]],
-  \ },
-  \ 'inactive': {
-  \    'left': [[ 'go' ]],
   \ },
   \ 'component_function': {
   \   'fugitive': 'LightLineFugitive',
   \   'modified': 'LightLineModified',
   \   'go': 'LightLineGo'
+  \ },
+  \ 'component_expand': {
+  \   'linter_checking': 'lightline#ale#checking',
+  \   'linter_warnings': 'lightline#ale#warnings',
+  \   'linter_errors': 'lightline#ale#errors',
   \ }
   \ }
 
@@ -158,6 +171,11 @@ endfunction
 " =================== EditorConfig ==================
 let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
 
+" ================== LanguageClient =================
+let g:LanguageClient_serverCommands = {
+  \ 'javascript': [ 'javascript-typescript-stdio' ],
+  \ }
+
 " ======================= FZF =======================
 nmap <silent> ; :Buffers<cr>
 nmap <silent> <leader>t :Files<cr>
@@ -171,15 +189,13 @@ let g:deoplete#sources#go#align_class = 1
 let g:ale_javascript_eslint_use_global = 1
 let g:ale_javascript_eslint_executable = 'eslint_d'
 let g:ale_fixers = {
-  \ 'javascript': ['eslint']
+  \ 'javascript': ['eslint'],
+  \ 'vue': ['eslint']
   \ }
 let g:ale_sign_error = '✘'
 let g:ale_sign_warning = '⚠'
 
-" ==================== UltiSnips ====================
 autocmd FileType javascript let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
-let g:UltiSnipsExpandTrigger="<C-j>"
-inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
 
 " Enter automatically into the files directory
 autocmd BufEnter * silent! lcd %:p:h
@@ -229,6 +245,9 @@ au FileType go nmap <leader>b  <Plug>(go-build)
 au FileType go nmap <leader>t  <Plug>(go-test)
 au FileType go nmap <Leader>d <Plug>(go-doc)
 au FileType go nmap <Leader>c <Plug>(go-coverage)
+
+" Javascript settings
+au FileType javascript setlocal noet ts=2 sw=2 sts=2
 
 highlight Comment gui=italic
 highlight Statement gui=italic
