@@ -1,6 +1,6 @@
 # Docker based development environment
-This Ubuntu 18.04 based image provides an SSH based environment for developing
-applications. This image enabled quick deployment of a development environment
+This Ubuntu 18.04 based image provides an SSH environment for developing
+applications. This image enables quick deployment of a development environment
 without the need to install the regular development tools.
 
 Major languages pre-installed in the image include:
