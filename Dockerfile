@@ -14,7 +14,8 @@ RUN apt-get install -y openssh-server tmux zsh curl man-db sudo iputils-ping loc
 	               tzdata mosh xsel xclip htop strace ltrace lsof dialog vim-common
 RUN apt-get install -y aptitude software-properties-common
 RUN echo 'docker.io docker.io/restart boolean true' | debconf-set-selections
-RUN apt-get install -y docker.io ruby2.5 ruby2.5-dev \
+RUN apt-get install -y docker.io docker-compose \
+                       ruby2.5 ruby2.5-dev \
                        nodejs npm \
                        python3-pip python3 \
                        python-pip python \
