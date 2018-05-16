@@ -1,7 +1,12 @@
-FROM       ubuntu:18.04
-MAINTAINER Warren Spits <warren@spits.id.au>
+FROM ubuntu:18.04
+LABEL maintainer="Warren Spits <warren@spits.id.au>"
+LABEL description="Preconfigured development environment"
 
-#RUN sed -ie 's/archive\.ubuntu\.com/mirror.aarnet.edu.au\/pub\/ubuntu\/archive/' /etc/apt/sources.list
+ARG user="warren"
+ARG fullname="Warren Spits"
+ARG email="warren@spits.id.au"
+ARG timezone="Australia/Melbourne"
+
 RUN rm -rf /var/lib/apt/lists/* && apt-get update
 
 RUN apt-get install -y xz-utils
@@ -39,24 +44,27 @@ RUN mkdir /var/run/sshd
 EXPOSE 22
 
 RUN rm /etc/update-motd.d/*
-RUN ln -sf /usr/share/zoneinfo/Australia/Melbourne /etc/localtime
+RUN ln -sf /usr/share/zoneinfo/$timezone /etc/localtime
 
 RUN apt-get install -y locales
 COPY locale.gen /etc/
 RUN locale-gen && update-locale LANG=en_AU.UTF-8
 
-RUN adduser warren --disabled-password --shell /bin/zsh --gecos "" && \
-  usermod warren -G sudo,users -a && \
-  passwd -d warren
+RUN adduser $user --disabled-password --shell /bin/zsh --gecos "$fullname,,,,$email" && \
+  usermod $user -G sudo,users -a && \
+  passwd -d $user
 
 # Change the sudo config
 RUN  perl -i -pe 's|(%sudo.*\s+)ALL$|$1NOPASSWD:ALL|g' /etc/sudoers \
   && echo 'Defaults env_keep = "http_proxy https_proxy ftp_proxy DISPLAY XAUTHORITY"' > /etc/sudoers.d/preserve_env¬
 
-COPY home/ /home/warren/
-RUN chown -R warren:warren /home/warren
+COPY home/ /home/$user/
+RUN chown -R $user:$user /home/$user
 
-USER warren
+USER $user
+
+RUN git config --global user.name "$fullname" \
+  && git config --global user.email "$email"
 
 # Install oh-my-zsh
 RUN umask g-w,o-w; git clone --depth 1 https://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh && \
@@ -65,7 +73,7 @@ RUN umask g-w,o-w; git clone --depth 1 https://github.com/robbyrussell/oh-my-zsh
   cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc && \
   sed -i 's/^ZSH_THEME=.*/ZSH_THEME="blinks"/' ~/.zshrc && \
   perl -0pe 's/^(plugins=)\(.*\)/$1(gitfast gitignore ruby golang node docker zsh-syntax-highlighting fzf-zsh)/ms' -i ~/.zshrc
-COPY zsh_custom/ /home/warren/.oh-my-zsh/custom
+COPY zsh_custom/ /home/$user/.oh-my-zsh/custom
 
 # install fzf, tpm, python neovim, vim plugin manager
 RUN git clone https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --bin && \
@@ -79,14 +87,14 @@ RUN git clone https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --bin
 
 # Install nvm with node and npm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash \
-    && NVM_DIR=/home/warren/.nvm && . $NVM_DIR/nvm.sh \
+    && NVM_DIR=/home/$user/.nvm && . $NVM_DIR/nvm.sh \
     && nvm install --lts node \
     && npm config set cafile /etc/ssl/certs/ca-certificates.crt \
     && npm install -g --upgrade npm
-RUN NVM_DIR=/home/warren/.nvm && . $NVM_DIR/nvm.sh \
+RUN NVM_DIR=/home/$user/.nvm && . $NVM_DIR/nvm.sh \
     && npm install -g yarn eslint_d javascript-typescript-langserver import-js
 
-ARG GOPATH=/home/warren/go
+ARG GOPATH=/home/$user/go
 RUN (echo export GOPATH=$GOPATH && \
   echo export PATH=\$GOPATH/bin:\$PATH && \
   echo export CDPATH=.:$GOPATH/src && \
@@ -118,9 +126,9 @@ RUN git clone -b v1.3.0 https://github.com/lastpass/lastpass-cli.git ~/build/las
 USER root
 
 # Install lastpass-cli
-RUN cd /home/warren/build/lastpass-cli && make PREFIX=/usr/local install
+RUN cd /home/$user/build/lastpass-cli && make PREFIX=/usr/local install
 
 # Fix permissions
-RUN chown -R warren:warren /home/warren/.oh-my-zsh/custom 
+RUN chown -R $user:$user /home/$user/.oh-my-zsh/custom
 
 CMD    ["/usr/sbin/sshd", "-D"]
