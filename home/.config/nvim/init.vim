@@ -12,6 +12,13 @@ Plug 'autozimu/LanguageClient-neovim', {
 Plug 'posva/vim-vue'
 Plug 'Galooshi/vim-import-js'
 
+Plug 'dNitro/vim-pug-complete', { 'for': ['jade', 'pug'] }
+Plug 'digitaltoad/vim-pug', { 'for': ['jade', 'pug'] }
+
+" Styles {{{
+Plug 'alexlafroscia/postcss-syntax.vim', { 'for': 'css' }
+" }}}
+
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'zchee/deoplete-go', { 'do': 'make' }
 
@@ -67,6 +74,7 @@ set completeopt=menu,menuone
 set nocursorcolumn           " speed up syntax highlighting
 set cursorline
 set mouse=a
+set lazyredraw
 
 set pumheight=10             " Completion window max size
 
