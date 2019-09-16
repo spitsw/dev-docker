@@ -4,34 +4,21 @@ Plug 'fatih/vim-go'
 Plug 'ekalinin/Dockerfile.vim', {'for' : 'Dockerfile'}
 Plug 'elzr/vim-json', {'for' : 'json'}
 
-Plug 'autozimu/LanguageClient-neovim', {
-  \ 'branch': 'next',
-  \ 'do': 'bash install.sh'
-  \ }
+Plug 'HerringtonDarkholme/yats.vim'
 
 Plug 'posva/vim-vue'
 Plug 'Galooshi/vim-import-js'
 
-Plug 'dNitro/vim-pug-complete', { 'for': ['jade', 'pug'] }
-Plug 'digitaltoad/vim-pug', { 'for': ['jade', 'pug'] }
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 " Styles {{{
 Plug 'alexlafroscia/postcss-syntax.vim', { 'for': 'css' }
 " }}}
 
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'zchee/deoplete-go', { 'do': 'make' }
-
-
-Plug 'ervandew/supertab'
-
-Plug 'w0rp/ale'
-
 Plug 'junegunn/fzf',  { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
 Plug 'itchyny/lightline.vim'
-Plug 'maximbaz/lightline-ale'
 
 Plug 'tyru/caw.vim'
 Plug 'Shougo/context_filetype.vim'
@@ -41,12 +28,8 @@ Plug 'christoomey/vim-tmux-navigator'
 Plug 'ConradIrwin/vim-bracketed-paste'
 Plug 'unblevable/quick-scope'
 
-Plug 'Raimondi/delimitMate'
-
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
-
-Plug 'majutsushi/tagbar'
 
 Plug 'w0ng/vim-hybrid'
 Plug 'cocopon/lightline-hybrid.vim'
@@ -86,8 +69,6 @@ let g:mapleader = ","
 " Remove search highlight
 nnoremap <silent> <leader><space> :nohlsearch<CR>
 
-nmap <leader>d     <plug>(ale_fix)
-
 " vim-go
 let g:go_fmt_fail_silently = 1
 let g:go_fmt_command = "goimports"
@@ -103,39 +84,7 @@ let g:go_highlight_trailing_whitespace_error = 0
 let g:go_highlight_extra_types = 0
 let g:go_highlight_build_constraints = 1
 
-" tagbar
-nnoremap <silent> <leader>a :TagbarToggle<CR>
-let g:tagbar_type_go = {
-    \ 'ctagstype' : 'go',
-    \ 'kinds' : [
-        \ 'p:package',
-        \ 'i:imports:1',
-        \ 'c:constants',
-        \ 'v:variables',
-        \ 't:types',
-        \ 'n:interfaces',
-        \ 'w:fields',
-        \ 'e:embedded',
-        \ 'm:methods',
-        \ 'r:constructor',
-        \ 'f:functions'
-    \ ],
-    \ 'sro' : '.',
-    \ 'kind2scope' : {
-        \ 't' : 'ctype',
-        \ 'n' : 'ntype'
-    \ },
-    \ 'scope2kind' : {
-        \ 'ctype' : 't',
-        \ 'ntype' : 'n'
-    \ },
-    \ 'ctagsbin'  : 'gotags',
-    \ 'ctagsargs' : '-sort -silent'
-    \ }
-
 " ==================== lightline = ====================
-let g:lightline#ale#indicator_errors = '✘'
-let g:lightline#ale#indicator_warnings = '⚠'
 let g:lightline = {
   \ 'colorscheme': 'hybrid',
   \ 'active': {
@@ -148,11 +97,6 @@ let g:lightline = {
   \   'fugitive': 'LightLineFugitive',
   \   'modified': 'LightLineModified',
   \   'go': 'LightLineGo'
-  \ },
-  \ 'component_expand': {
-  \   'linter_checking': 'lightline#ale#checking',
-  \   'linter_warnings': 'lightline#ale#warnings',
-  \   'linter_errors': 'lightline#ale#errors',
   \ }
   \ }
 
@@ -179,31 +123,10 @@ endfunction
 " =================== EditorConfig ==================
 let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
 
-" ================== LanguageClient =================
-let g:LanguageClient_serverCommands = {
-  \ 'javascript': [ 'javascript-typescript-stdio' ],
-  \ }
-
 " ======================= FZF =======================
 nmap <silent> ; :Buffers<cr>
 nmap <silent> <leader>t :Files<cr>
-
-" ==================== Deoplete =====================
-let g:deoplete#enable_at_startup = 1
-let g:deoplete#sources#go#sort_class = ['func', 'type', 'var', 'const']
-let g:deoplete#sources#go#align_class = 1
-
-" ======================= ALE =======================
-let g:ale_javascript_eslint_use_global = 1
-let g:ale_javascript_eslint_executable = 'eslint_d'
-let g:ale_fixers = {
-  \ 'javascript': ['eslint'],
-  \ 'vue': ['eslint']
-  \ }
-let g:ale_sign_error = '✘'
-let g:ale_sign_warning = '⚠'
-
-autocmd FileType javascript let g:SuperTabDefaultCompletionType = "<c-x><c-o>"
+nmap <silent> <leader>g :Ag<cr>
 
 " Enter automatically into the files directory
 autocmd BufEnter * silent! lcd %:p:h

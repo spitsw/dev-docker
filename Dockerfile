@@ -7,7 +7,8 @@ ARG fullname="Warren Spits"
 ARG email="warren@spits.id.au"
 ARG timezone="Australia/Melbourne"
 
-RUN rm -rf /var/lib/apt/lists/* && apt-get update
+RUN sed --in-place --regexp-extended "s/(\/\/)(archive\.ubuntu)/\1au.\2/" /etc/apt/sources.list && \
+      rm -rf /var/lib/apt/lists/* && apt-get update
 
 RUN apt-get install -y xz-utils
 RUN apt-get install -y openssh-server tmux zsh curl man-db sudo iputils-ping locales \
@@ -16,16 +17,17 @@ RUN apt-get install -y aptitude software-properties-common
 RUN echo 'docker.io docker.io/restart boolean true' | debconf-set-selections
 RUN apt-get install -y docker.io docker-compose \
                        ruby2.5 ruby2.5-dev \
-                       nodejs npm \
                        python3-pip python3 \
                        python-pip python \
                        build-essential cmake autoconf exuberant-ctags silversearcher-ag
 RUN apt-get install -y ncurses-dev libsqlite3-dev tig
-RUN apt-get install -y golang golang-go.tools golang-1.10
 RUN update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby2.5 400
 
 COPY ca-certificates/ /usr/local/share/ca-certificates/
 RUN update-ca-certificates
+
+RUN add-apt-repository ppa:longsleep/golang-backports && \
+  apt-get update && apt-get install -y golang-go
 
 RUN add-apt-repository ppa:neovim-ppa/unstable && \
   apt-get update && apt-get install -y neovim && \
@@ -86,6 +88,9 @@ RUN git clone https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --bin
   curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
   https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
+# install some useful python built tools
+RUN pip install aws
+
 # Install nvm with node and npm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash \
     && NVM_DIR=/home/$user/.nvm && . $NVM_DIR/nvm.sh \
@@ -93,35 +98,33 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | b
     && npm config set cafile /etc/ssl/certs/ca-certificates.crt \
     && npm install -g --upgrade npm
 RUN NVM_DIR=/home/$user/.nvm && . $NVM_DIR/nvm.sh \
-    && npm install -g yarn eslint_d javascript-typescript-langserver import-js
+    && npm install -g yarn eslint_d javascript-typescript-langserver import-js \
+    && mkdir -p /home/$user/.config/coc/extensions && cd /home/$user/.config/coc/extensions \
+    && echo '{"dependencies":{}}' > package.json \
+    && npm i coc-json coc-rust-analyzer coc-snippets coc-tsserver --no-shrinkwrap
+
+# Install rust
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path \
+  && /home/$user/.cargo/bin/rustup component add rust-src \
+  && /home/$user/.cargo/bin/rustup component add rust-docs \
+  && /home/$user/.cargo/bin/rustup component add clippy
+
+RUN git clone https://github.com/rust-analyzer/rust-analyzer ~/build/rust-analyzer \
+  && cd ~/build/rust-analyzer && ~/.cargo/bin/cargo install-ra --server
 
 ARG GOPATH=/home/$user/go
 RUN (echo export GOPATH=$GOPATH && \
-  echo export PATH=\$GOPATH/bin:\$PATH && \
+  echo export PATH=\$GOPATH/bin:/home/$user/.cargo/bin:\$PATH && \
   echo export CDPATH=.:$GOPATH/src && \
   echo export FZF_DEFAULT_COMMAND=\'ag --nocolor -g \"\"\' ) >> ~/.zshrc
 
-RUN go get -v \
-            github.com/github/hub \
-            github.com/nsf/gocode \
-            github.com/alecthomas/gometalinter \
-            golang.org/x/tools/cmd/goimports \
-	    golang.org/x/tools/cmd/guru \
-            golang.org/x/tools/cmd/gorename \
-            github.com/golang/lint/golint \
-            github.com/kisielk/errcheck \
-            github.com/jstemmer/gotags \
-            github.com/rogpeppe/godef \
-            github.com/klauspost/asmfmt/cmd/asmfmt \
-            github.com/fatih/motion \
-	    github.com/zmb3/gogetdoc \
-	    github.com/josharian/impl
+RUN nvim --headless +PlugInstall +UpdateRemotePlugins +qa && \
+  nvim --headless +GoInstallBinaries +qa
 
-RUN nvim +PlugInstall +UpdateRemotePlugins +qa && \
-  nvim +GoInstallBinaries +qa
+RUN go get -v github.com/github/hub
 
 # Build lastpass-cli
-RUN git clone -b v1.3.0 https://github.com/lastpass/lastpass-cli.git ~/build/lastpass-cli && \
+RUN git clone -b v1.3.3 https://github.com/lastpass/lastpass-cli.git ~/build/lastpass-cli && \
   cd ~/build/lastpass-cli && make
 
 USER root
