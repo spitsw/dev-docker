@@ -4,11 +4,6 @@ Plug 'fatih/vim-go'
 Plug 'ekalinin/Dockerfile.vim', {'for' : 'Dockerfile'}
 Plug 'elzr/vim-json', {'for' : 'json'}
 
-Plug 'HerringtonDarkholme/yats.vim'
-
-Plug 'posva/vim-vue'
-Plug 'Galooshi/vim-import-js'
-
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 " Styles {{{
@@ -29,7 +24,6 @@ Plug 'ConradIrwin/vim-bracketed-paste'
 Plug 'unblevable/quick-scope'
 
 Plug 'tpope/vim-fugitive'
-Plug 'airblade/vim-gitgutter'
 
 Plug 'w0ng/vim-hybrid'
 Plug 'cocopon/lightline-hybrid.vim'
@@ -89,16 +83,18 @@ let g:lightline = {
   \ 'colorscheme': 'hybrid',
   \ 'active': {
   \   'left': [[ 'mode', 'paste' ],
-  \            [ 'fugitive', 'filename', 'readonly', 'modified'],
-  \            [ 'linter_checking', 'linter_errors', 'linter_warnings' ],
+  \            [ 'fugitive', 'cocstatus', 'filename', 'readonly', 'modified'],
   \            [ 'go' ]],
   \ },
   \ 'component_function': {
+  \   'cocstatus': 'coc#status',
   \   'fugitive': 'LightLineFugitive',
   \   'modified': 'LightLineModified',
   \   'go': 'LightLineGo'
   \ }
   \ }
+
+autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 
 function! LightLineFugitive()
   return exists('*fugitive#head') ? fugitive#head() : ''
@@ -120,6 +116,9 @@ function! LightLineModified()
   endif
 endfunction
 
+" ==================== COC ==========================
+autocmd CursorHold * silent call CocAction('highlight')
+
 " =================== EditorConfig ==================
 let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
 
@@ -130,6 +129,19 @@ nmap <silent> <leader>g :Ag<cr>
 
 " Enter automatically into the files directory
 autocmd BufEnter * silent! lcd %:p:h
+
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? coc#_select_confirm() :
+      \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+let g:coc_snippet_next = '<tab>'
 
 let g:qs_highlight_on_keys = ['f', 'F', 't', 'T'] " unblevable/quick-scope
 
@@ -154,7 +166,7 @@ noremap <C-d> <C-d>zz
 noremap <C-u> <C-u>zz
 
 set list
-set listchars=tab:▸\ ,eol:¬
+set listchars=tab:▸\ ,eol:¬,extends:>,precedes:<
 
 " Go settings
 au BufNewFile,BufRead *.go setlocal noet ts=4 sw=4 sts=4
@@ -176,6 +188,12 @@ au FileType go nmap <leader>b  <Plug>(go-build)
 au FileType go nmap <leader>t  <Plug>(go-test)
 au FileType go nmap <Leader>d <Plug>(go-doc)
 au FileType go nmap <Leader>c <Plug>(go-coverage)
+
+" Rust settings
+au FileType rust nmap <Leader>d <Plug>(coc-definition)
+au FileType rust nmap <Leader>y <Plug>(coc-type-definition)
+au FileType rust nmap <Leader>p <Plug>(coc-implementation)
+au FileType rust nmap <Leader>r <Plug>(coc-references)
 
 " Javascript settings
 au FileType javascript setlocal noet ts=2 sw=2 sts=2
