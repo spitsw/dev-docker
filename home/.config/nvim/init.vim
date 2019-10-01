@@ -1,7 +1,5 @@
 
 runtime plugins.vim
-runtime golang.vim
-runtime coc.vim
 
 set number                   " Show line number on the current line
 set relativenumber           " Show relative numbers
@@ -124,5 +122,8 @@ set listchars=tab:▸\ ,eol:¬,extends:>,precedes:<,nbsp:~
 
 highlight Comment gui=italic
 highlight Statement gui=italic
+
+runtime golang.vim
+runtime coc.vim
 
 " vim:ts=2:sw=2:et

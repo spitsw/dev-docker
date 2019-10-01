@@ -1,4 +1,4 @@
 {
 	"rust-analyzer.enableCargoWatchOnStartup": "enabled",
-	"coc.preferences.diagnostics.displayByAle": true
+	"suggest.noselect": false
 }
