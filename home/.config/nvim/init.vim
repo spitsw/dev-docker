@@ -77,7 +77,7 @@ let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
 " ======================= FZF =======================
 nmap <silent> ; :Buffers<cr>
 nmap <silent> <leader>t :Files<cr>
-nmap <silent> <leader>g :Ag<cr>
+nmap <silent> <leader>g :Rg<cr>
 
 " Enter automatically into the files directory
 autocmd BufEnter * silent! lcd %:p:h

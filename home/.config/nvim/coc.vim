@@ -1,7 +1,6 @@
 " ==================== COC ==========================
 autocmd CursorHold * silent call CocAction('highlight')
 
-set cmdheight=2
 set shortmess+=c
 
 nmap <silent> [c <Plug>(coc-diagnostic-prev)

@@ -1,4 +1,6 @@
 {
 	"rust-analyzer.enableCargoWatchOnStartup": "enabled",
-	"suggest.noselect": false
+	"rust-analyzer.cargo-watch.command": "clippy",
+	"suggest.noselect": false,
+	"suggest.timeout": 5000
 }
